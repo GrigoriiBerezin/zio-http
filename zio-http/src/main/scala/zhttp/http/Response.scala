@@ -13,7 +13,6 @@ case class Response[-R, +E] private (
 )
 
 object Response {
-
   def apply[R, E](
     status: Status = Status.OK,
     headers: List[Header] = Nil,
@@ -21,7 +20,7 @@ object Response {
   ): Response[R, E] =
     Response(status, headers, data, HttpAttribute.empty)
 
-  @deprecated("Use `Response(status, headers, content)` constructor instead.", "22-Sep-2021")
+  @deprecated("Use `Response(status, headers, data)` constructor instead.", "22-Sep-2021")
   def http[R, E](
     status: Status = Status.OK,
     headers: List[Header] = Nil,
