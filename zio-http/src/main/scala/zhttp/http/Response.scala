@@ -11,7 +11,20 @@ case class Response[-R, +E] private (
   headers: List[Header],
   data: HttpData[R, E],
   private[zhttp] val attribute: HttpAttribute[R, E],
-)
+) { self =>
+  val s = self.status
+  val h = self.headers
+  val d = self.data
+
+  def setStatus(status: Status): Response[R, E] = Response(status, h, d)
+
+  def removeHeaders(headers: List[String]): Response[R, E] = {
+    val newHeaders = h.filter(p => headers.contains(p.name))
+    Response(s, newHeaders, d)
+  }
+
+  def addHeaders(headers: List[Header]): Response[R, E] = Response(s, h ++ headers, d)
+}
 
 object Response {
   def apply[R, E](
@@ -55,7 +68,6 @@ object Response {
         )
       case _ => Response(error.status, Nil, HttpData.fromChunk(Chunk.fromArray(error.message.getBytes(HTTP_CHARSET))))
     }
-
   }
 
   def ok: UResponse = Response(Status.OK)
@@ -79,5 +91,4 @@ object Response {
 
   def permanentRedirect(location: String): Response[Any, Nothing] =
     Response(Status.PERMANENT_REDIRECT, List(Header.location(location)))
-
 }
