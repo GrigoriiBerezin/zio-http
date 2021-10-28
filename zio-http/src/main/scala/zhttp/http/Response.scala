@@ -12,18 +12,14 @@ case class Response[-R, +E] private (
   data: HttpData[R, E],
   private[zhttp] val attribute: HttpAttribute[R, E],
 ) { self =>
-  val s = self.status
-  val h = self.headers
-  val d = self.data
+  def setStatus(status: Status): Response[R, E] =
+    self.copy(status = status)
 
-  def setStatus(status: Status): Response[R, E] = Response(status, h, d)
+  def removeHeaders(headers: List[String]): Response[R, E] =
+    self.copy(headers = self.headers.filterNot(h => headers.contains(h.name)))
 
-  def removeHeaders(headers: List[String]): Response[R, E] = {
-    val newHeaders = h.filter(p => headers.contains(p.name))
-    Response(s, newHeaders, d)
-  }
-
-  def addHeaders(headers: List[Header]): Response[R, E] = Response(s, h ++ headers, d)
+  def addHeaders(headers: List[Header]): Response[R, E] =
+    self.copy(headers = self.headers ++ headers)
 }
 
 object Response {
